@@ -17,18 +17,32 @@
     <form method="POST" action="{{ route('admin.exams.store') }}" class="space-y-5">
         @csrf
 
-        <input class="w-full border rounded-lg p-3" type="text" name="title" placeholder="Exam Title">
+        <!-- Exam Title -->
+        <input class="w-full border rounded-lg p-3" type="text" name="title" placeholder="Exam Title" required>
 
+        <!-- 🔥 Hackathon Dropdown -->
+        <select name="hackathon_id" class="w-full border rounded-lg p-3" required>
+            <option value="">Select Hackathon</option>
+            @foreach($hackathons as $hackathon)
+                <option value="{{ $hackathon->id }}">
+                    {{ $hackathon->title }} ({{ ucfirst($hackathon->level) }})
+                </option>
+            @endforeach
+        </select>
+
+        <!-- Description -->
         <textarea class="w-full border rounded-lg p-3" name="description" placeholder="Description"></textarea>
 
+        <!-- Inputs -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input class="border rounded-lg p-3" type="number" name="duration" placeholder="Duration in minutes">
-            <input class="border rounded-lg p-3" type="number" name="total_marks" placeholder="Total Marks">
-            <input class="border rounded-lg p-3" type="number" name="passing_marks" placeholder="Passing Marks">
+            <input class="border rounded-lg p-3" type="number" name="duration" placeholder="Duration in minutes" required>
+            <input class="border rounded-lg p-3" type="number" name="total_marks" placeholder="Total Marks" required>
+            <input class="border rounded-lg p-3" type="number" name="passing_marks" placeholder="Passing Marks" required>
             <input class="border rounded-lg p-3" type="number" name="negative_marks" placeholder="Negative Marks">
             <input class="border rounded-lg p-3" type="number" name="max_warnings" value="3" placeholder="Max Warnings">
         </div>
 
+        <!-- Submit -->
         <button class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
             Create Exam
         </button>
