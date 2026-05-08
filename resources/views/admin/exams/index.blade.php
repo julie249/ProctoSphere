@@ -22,6 +22,7 @@
             <thead>
                 <tr class="bg-slate-900 text-white">
                     <th class="p-3 text-left">ID</th>
+                    <th class="p-3 text-left">Hackathon</th>
                     <th class="p-3 text-left">Title</th>
                     <th class="p-3 text-left">Duration</th>
                     <th class="p-3 text-left">Total Marks</th>
@@ -33,9 +34,13 @@
                 @foreach($exams as $exam)
                 <tr class="border-b hover:bg-slate-50">
                     <td class="p-3">{{ $exam->id }}</td>
+                    <td class="p-3">
+    {{ $exam->hackathon->title ?? 'No Hackathon' }}
+</td>
                     <td class="p-3 font-semibold">{{ $exam->title }}</td>
                     <td class="p-3">{{ $exam->duration }} mins</td>
                     <td class="p-3">{{ $exam->total_marks }}</td>
+
                     <td class="p-3">{{ $exam->passing_marks }}</td>
                 </tr>
                 @endforeach

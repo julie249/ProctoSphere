@@ -8,7 +8,6 @@
     <div class="py-10 bg-slate-100 min-h-screen">
         <div class="max-w-7xl mx-auto px-6">
 
-            <!-- Alerts -->
             @if(session('error'))
                 <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
                     {{ session('error') }}
@@ -21,59 +20,48 @@
                 </div>
             @endif
 
-            <!-- Welcome -->
             <div class="bg-white rounded-2xl shadow p-6 mb-8">
                 <h3 class="text-2xl font-bold text-slate-800 mb-2">
                     Welcome to ProctoSphere
                 </h3>
                 <p class="text-slate-500">
-                    Start your assigned hackathon screening exams and view your previous results.
+                    Select a hackathon and start the assigned screening exam.
                 </p>
             </div>
 
-            <!-- Exams -->
             <div class="bg-white rounded-2xl shadow p-6 mb-8">
                 <h3 class="text-xl font-bold text-slate-800 mb-4">
-                    Available Exams
+                    Available Hackathons
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($exams as $exam)
-                        @php
-                            $alreadyAttempted = $attempts->where('exam_id', $exam->id)->first();
-                        @endphp
-
+                    @foreach($hackathons as $hackathon)
                         <div class="border rounded-2xl p-5 hover:shadow-lg transition">
                             <h4 class="text-lg font-bold text-slate-800">
-                                {{ $exam->title }}
+                                {{ $hackathon->title }}
                             </h4>
 
                             <p class="text-slate-500 mt-2">
-                                {{ $exam->description }}
+                                {{ $hackathon->description }}
                             </p>
 
                             <p class="mt-3 text-sm text-slate-600">
-                                Duration: {{ $exam->duration }} minutes
+                                Level: {{ ucfirst($hackathon->level) }}
                             </p>
 
-                            @if($alreadyAttempted)
-                                <button disabled
-                                    class="inline-block mt-4 bg-gray-400 text-white px-5 py-2 rounded-lg cursor-not-allowed">
-                                    Already Attempted
-                                </button>
-                            @else
-                                <!-- 🔥 UPDATED FLOW -->
-                                <a href="{{ route('candidate.exam.instructions', $exam->id) }}"
-                                   class="inline-block mt-4 bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700">
-                                    Start Exam
-                                </a>
-                            @endif
+                            <p class="text-sm text-slate-600">
+                                {{ $hackathon->start_date }} to {{ $hackathon->end_date }}
+                            </p>
+
+                            <a href="{{ route('candidate.hackathon.exams', $hackathon->id) }}"
+                               class="inline-block mt-4 bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700">
+                                View Exams
+                            </a>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            <!-- Results -->
             <div class="bg-white rounded-2xl shadow p-6">
                 <h3 class="text-xl font-bold text-slate-800 mb-4">
                     My Previous Results
