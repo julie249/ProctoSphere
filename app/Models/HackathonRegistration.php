@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProctorLog extends Model
+class HackathonRegistration extends Model
 {
     protected $fillable = [
         'user_id',
-        'exam_id',
-        'event_type',
-        'details',
-        'snapshot',
+        'hackathon_id',
+        'status',
     ];
 
     public function user()
@@ -19,8 +17,8 @@ class ProctorLog extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function exam()
+    public function hackathon()
     {
-        return $this->belongsTo(Exam::class);
+        return $this->belongsTo(Hackathon::class);
     }
 }

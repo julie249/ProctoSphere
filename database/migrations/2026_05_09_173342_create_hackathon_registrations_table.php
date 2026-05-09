@@ -6,9 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('proctor_logs', function (Blueprint $table) {
+        Schema::create('hackathon_registrations', function (Blueprint $table) {
 
             $table->id();
 
@@ -16,24 +19,24 @@ return new class extends Migration
                 ->constrained()
                 ->onDelete('cascade');
 
-            $table->foreignId('exam_id')
+            $table->foreignId('hackathon_id')
                 ->constrained()
                 ->onDelete('cascade');
 
-            $table->string('event_type');
-
-            $table->text('details')->nullable();
-
-            // Snapshot image path
-            $table->string('snapshot')->nullable();
+            $table->string('status')->default('registered');
 
             $table->timestamps();
+
+            $table->unique(['user_id', 'hackathon_id']);
 
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('proctor_logs');
+        Schema::dropIfExists('hackathon_registrations');
     }
 };

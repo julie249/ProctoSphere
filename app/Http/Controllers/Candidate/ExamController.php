@@ -11,9 +11,17 @@ use App\Models\Question;
 use App\Models\ExamAttempt;
 use App\Models\ProctorLog;
 use App\Models\Hackathon;
+use App\Models\HackathonRegistration;
 
 class ExamController extends Controller
 {
+    private function isRegisteredForHackathon($hackathonId)
+    {
+        return HackathonRegistration::where('user_id', Auth::id())
+            ->where('hackathon_id', $hackathonId)
+            ->exists();
+    }
+
     public function hackathons()
     {
         $hackathons = Hackathon::latest()->get();
@@ -23,6 +31,11 @@ class ExamController extends Controller
 
     public function hackathonExams(Hackathon $hackathon)
     {
+        if (!$this->isRegisteredForHackathon($hackathon->id)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please register for this hackathon before viewing exams.');
+        }
+
         $exams = Exam::where('hackathon_id', $hackathon->id)
             ->where('is_active', true)
             ->get();
@@ -32,6 +45,11 @@ class ExamController extends Controller
 
     public function instructions(Exam $exam)
     {
+        if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please register for this hackathon before starting the exam.');
+        }
+
         $alreadyAttempted = ExamAttempt::where('user_id', Auth::id())
             ->where('exam_id', $exam->id)
             ->exists();
@@ -46,11 +64,21 @@ class ExamController extends Controller
 
     public function webcam(Exam $exam)
     {
+        if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please register for this hackathon before webcam verification.');
+        }
+
         return view('candidate.webcam', compact('exam'));
     }
 
     public function start(Exam $exam)
     {
+        if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please register for this hackathon before starting the exam.');
+        }
+
         $alreadyAttempted = ExamAttempt::where('user_id', Auth::id())
             ->where('exam_id', $exam->id)
             ->exists();
@@ -67,6 +95,20 @@ class ExamController extends Controller
 
     public function submit(Request $request, Exam $exam)
     {
+        if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please register for this hackathon before submitting the exam.');
+        }
+
+        $alreadyAttempted = ExamAttempt::where('user_id', Auth::id())
+            ->where('exam_id', $exam->id)
+            ->exists();
+
+        if ($alreadyAttempted) {
+            return redirect()->route('dashboard')
+                ->with('error', 'You have already submitted this exam.');
+        }
+
         $questions = Question::where('exam_id', $exam->id)->get();
 
         $score = 0;

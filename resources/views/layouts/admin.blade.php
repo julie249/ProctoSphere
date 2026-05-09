@@ -62,6 +62,7 @@
                 <span>Questions</span>
 
             </a>
+            
 
             <a href="{{ route('admin.attempts') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition">
@@ -87,6 +88,15 @@
                 <span>Proctor Logs</span>
 
             </a>
+
+           <a href="{{ route('admin.analytics') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition
+   {{ request()->routeIs('admin.analytics') ? 'bg-slate-800 text-white' : '' }}">
+
+    <span>📈</span>
+    <span>Analytics</span>
+
+</a>
 
         </nav>
 

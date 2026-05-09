@@ -85,34 +85,22 @@
                     <div class="space-y-3">
 
                         <label class="block bg-white p-3 rounded-xl border cursor-pointer">
-                            <input type="radio"
-                                   name="answers[{{ $question->id }}]"
-                                   value="A"
-                                   class="mr-2">
+                            <input type="radio" name="answers[{{ $question->id }}]" value="A" class="mr-2">
                             {{ $question->option_a }}
                         </label>
 
                         <label class="block bg-white p-3 rounded-xl border cursor-pointer">
-                            <input type="radio"
-                                   name="answers[{{ $question->id }}]"
-                                   value="B"
-                                   class="mr-2">
+                            <input type="radio" name="answers[{{ $question->id }}]" value="B" class="mr-2">
                             {{ $question->option_b }}
                         </label>
 
                         <label class="block bg-white p-3 rounded-xl border cursor-pointer">
-                            <input type="radio"
-                                   name="answers[{{ $question->id }}]"
-                                   value="C"
-                                   class="mr-2">
+                            <input type="radio" name="answers[{{ $question->id }}]" value="C" class="mr-2">
                             {{ $question->option_c }}
                         </label>
 
                         <label class="block bg-white p-3 rounded-xl border cursor-pointer">
-                            <input type="radio"
-                                   name="answers[{{ $question->id }}]"
-                                   value="D"
-                                   class="mr-2">
+                            <input type="radio" name="answers[{{ $question->id }}]" value="D" class="mr-2">
                             {{ $question->option_d }}
                         </label>
 
@@ -174,7 +162,36 @@
         }
     }
 
+    function captureSnapshot() {
+        if (!examVideo) {
+            console.log("No video element found");
+            return null;
+        }
+
+        if (!examVideo.videoWidth || !examVideo.videoHeight) {
+            console.log("Video not ready yet", examVideo.videoWidth, examVideo.videoHeight);
+            return null;
+        }
+
+        let canvas = document.createElement("canvas");
+        canvas.width = examVideo.videoWidth;
+        canvas.height = examVideo.videoHeight;
+
+        let context = canvas.getContext("2d");
+        context.drawImage(examVideo, 0, 0, canvas.width, canvas.height);
+
+        let imageData = canvas.toDataURL("image/png");
+
+        console.log("Snapshot captured:", imageData.substring(0, 30));
+
+        return imageData;
+    }
+
     function saveProctorLog(reason) {
+        let snapshot = captureSnapshot();
+
+        console.log("Snapshot before sending:", snapshot ? "YES" : "NO");
+
         fetch("{{ route('proctor.log') }}", {
             method: "POST",
             headers: {
@@ -184,7 +201,8 @@
             body: JSON.stringify({
                 exam_id: "{{ $exam->id }}",
                 event_type: reason,
-                details: "Violation detected during exam"
+                details: "Violation detected during exam",
+                snapshot: snapshot
             })
         })
         .then(response => response.json())
@@ -228,6 +246,10 @@
             examCameraStatus.classList.add("text-green-600");
 
             monitorCameraTrack();
+
+            setTimeout(function () {
+                console.log("Camera ready:", examVideo.videoWidth, examVideo.videoHeight);
+            }, 2000);
 
         } catch (error) {
             examCameraStatus.innerText = "Camera Off";

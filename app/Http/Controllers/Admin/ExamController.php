@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Hackathon;
@@ -14,14 +15,12 @@ class ExamController extends Controller
     public function index()
     {
         $exams = Exam::with('hackathon')->latest()->get();
-
         return view('admin.exams.index', compact('exams'));
     }
 
     public function create()
     {
         $hackathons = Hackathon::latest()->get();
-
         return view('admin.exams.create', compact('hackathons'));
     }
 
@@ -135,6 +134,59 @@ class ExamController extends Controller
             'totalAttempts',
             'shortlisted',
             'rejected'
+        ));
+    }
+
+    public function analytics()
+    {
+        $totalCandidates = User::where('role', 'candidate')->count();
+        $totalHackathons = Hackathon::count();
+        $totalExams = Exam::count();
+        $totalAttempts = ExamAttempt::count();
+
+        $shortlisted = ExamAttempt::where('status', 'shortlisted')->count();
+        $rejected = ExamAttempt::where('status', 'rejected')->count();
+
+        $safeCandidates = ExamAttempt::where('violations', '<', 2)->count();
+        $mediumRisk = ExamAttempt::whereBetween('violations', [2, 4])->count();
+        $highRisk = ExamAttempt::where('violations', '>=', 5)->count();
+
+        $totalViolations = ProctorLog::count();
+
+        $attemptMonths = ExamAttempt::selectRaw("
+                MONTHNAME(created_at) as month,
+                COUNT(*) as total
+            ")
+            ->groupBy('month')
+            ->orderByRaw('MIN(created_at)')
+            ->pluck('total', 'month');
+
+        $violationTypes = ProctorLog::selectRaw("
+                event_type,
+                COUNT(*) as total
+            ")
+            ->groupBy('event_type')
+            ->pluck('total', 'event_type');
+
+        $examAttempts = ExamAttempt::with('exam')
+            ->selectRaw('exam_id, COUNT(*) as total')
+            ->groupBy('exam_id')
+            ->get();
+
+        return view('admin.analytics', compact(
+            'totalCandidates',
+            'totalHackathons',
+            'totalExams',
+            'totalAttempts',
+            'shortlisted',
+            'rejected',
+            'safeCandidates',
+            'mediumRisk',
+            'highRisk',
+            'totalViolations',
+            'attemptMonths',
+            'violationTypes',
+            'examAttempts'
         ));
     }
 }

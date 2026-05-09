@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Exam;
+use App\Models\HackathonRegistration;
 
 class Hackathon extends Model
 {
@@ -15,8 +17,15 @@ class Hackathon extends Model
         'is_active',
     ];
 
+    // Exams under hackathon
     public function exams()
     {
         return $this->hasMany(Exam::class);
+    }
+
+    // Candidate registrations
+    public function registrations()
+    {
+        return $this->hasMany(HackathonRegistration::class);
     }
 }

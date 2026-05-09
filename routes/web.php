@@ -5,7 +5,7 @@ use App\Http\Controllers\ProfileController;
 
 use App\Models\Hackathon;
 use App\Models\ExamAttempt;
-
+use App\Http\Controllers\Candidate\HackathonRegistrationController;
 use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\HackathonController;
@@ -73,6 +73,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/candidate/hackathons', [CandidateExamController::class, 'hackathons'])
         ->name('candidate.hackathons');
+
+        Route::post('/hackathons/{hackathon}/register', [HackathonRegistrationController::class, 'register'])
+    ->name('candidate.hackathons.register');
 
     Route::get('/candidate/hackathons/{hackathon}/exams', [CandidateExamController::class, 'hackathonExams'])
         ->name('candidate.hackathon.exams');
@@ -161,6 +164,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     | Attempts, Logs & Leaderboard
     |--------------------------------------------------------------------------
     */
+
+    Route::get('/admin/analytics', [ExamController::class, 'analytics'])
+    ->name('admin.analytics');
+
     Route::get('/admin/attempts/export', [ExamController::class, 'exportAttempts'])
     ->name('admin.attempts.export');
 

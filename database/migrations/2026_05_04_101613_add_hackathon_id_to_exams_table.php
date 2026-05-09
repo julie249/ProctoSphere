@@ -9,18 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('exams', function (Blueprint $table) {
-            $table->foreignId('hackathon_id')
-                  ->nullable()
-                  ->constrained('hackathons')
-                  ->onDelete('cascade');
+
+            // Already exists
+            // $table->foreignId('hackathon_id')
+            //       ->nullable()
+            //       ->constrained('hackathons')
+            //       ->onDelete('cascade');
+
         });
     }
 
     public function down(): void
     {
         Schema::table('exams', function (Blueprint $table) {
-            $table->dropForeign(['hackathon_id']);
-            $table->dropColumn('hackathon_id');
+
+            // Already exists
+            // $table->dropForeign(['hackathon_id']);
+            // $table->dropColumn('hackathon_id');
+
         });
     }
 };
