@@ -25,35 +25,42 @@ class ExamController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'hackathon_id' => 'required|exists:hackathons,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'duration' => 'required|integer|min:1',
-            'total_marks' => 'required|integer|min:1',
-            'passing_marks' => 'required|integer|min:0',
-            'negative_marks' => 'nullable|numeric|min:0',
-            'max_warnings' => 'nullable|integer|min:1',
-        ]);
+{
+    $request->validate([
+        'hackathon_id' => 'required|exists:hackathons,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'duration' => 'required|integer|min:1',
+        'total_marks' => 'required|integer|min:1',
+        'passing_marks' => 'required|integer|min:0',
+        'negative_marks' => 'nullable|numeric|min:0',
+        'max_warnings' => 'nullable|integer|min:1',
 
-        Exam::create([
-            'hackathon_id' => $request->hackathon_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'duration' => $request->duration,
-            'total_marks' => $request->total_marks,
-            'passing_marks' => $request->passing_marks,
-            'negative_marks' => $request->negative_marks ?? 0,
-            'max_warnings' => $request->max_warnings ?? 3,
-            'is_active' => 1,
-        ]);
+        // Scheduling Validation
+        'exam_start_time' => 'nullable|date',
+        'exam_end_time' => 'nullable|date|after_or_equal:exam_start_time',
+    ]);
 
-        return redirect()
-            ->route('admin.exams.index')
-            ->with('success', 'Exam created successfully');
-    }
+    Exam::create([
+        'hackathon_id' => $request->hackathon_id,
+        'title' => $request->title,
+        'description' => $request->description,
+        'duration' => $request->duration,
+        'total_marks' => $request->total_marks,
+        'passing_marks' => $request->passing_marks,
+        'negative_marks' => $request->negative_marks ?? 0,
+        'max_warnings' => $request->max_warnings ?? 3,
+        'is_active' => 1,
 
+        // Scheduling Fields
+        'exam_start_time' => $request->exam_start_time,
+        'exam_end_time' => $request->exam_end_time,
+    ]);
+
+    return redirect()
+        ->route('admin.exams.index')
+        ->with('success', 'Exam created successfully');
+}
     public function attempts()
     {
         $attempts = ExamAttempt::with(['user', 'exam'])

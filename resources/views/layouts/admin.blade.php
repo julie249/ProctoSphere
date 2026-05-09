@@ -88,6 +88,22 @@
                 <span>Proctor Logs</span>
 
             </a>
+            <a href="{{ route('admin.registrations.index') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition
+   {{ request()->routeIs('admin.registrations.*') ? 'bg-slate-800 text-white' : '' }}">
+
+    <span>🧾</span>
+    <span>Registrations</span>
+
+</a>
+<a href="{{ route('admin.tokens.index') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition
+   {{ request()->routeIs('admin.tokens.*') ? 'bg-slate-800 text-white' : '' }}">
+
+    <span>🔑</span>
+    <span>Exam Tokens</span>
+
+</a>
 
            <a href="{{ route('admin.analytics') }}"
    class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition

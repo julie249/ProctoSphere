@@ -4,13 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 
 use App\Models\Hackathon;
+use App\Http\Controllers\Admin\ExamTokenController;
 use App\Models\ExamAttempt;
-use App\Http\Controllers\Candidate\HackathonRegistrationController;
+
 use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\HackathonController;
+use App\Http\Controllers\Admin\HackathonRegistrationController as AdminHackathonRegistrationController;
 
 use App\Http\Controllers\Candidate\ExamController as CandidateExamController;
+use App\Http\Controllers\Candidate\HackathonRegistrationController as CandidateHackathonRegistrationController;
+
 use App\Http\Controllers\ProctorController;
 
 /*
@@ -67,15 +71,21 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Candidate Hackathon Registration
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/hackathons/{hackathon}/register', [CandidateHackathonRegistrationController::class, 'register'])
+        ->name('candidate.hackathons.register');
+
+    /*
+    |--------------------------------------------------------------------------
     | Candidate Hackathon & Exam Routes
     |--------------------------------------------------------------------------
     */
 
     Route::get('/candidate/hackathons', [CandidateExamController::class, 'hackathons'])
         ->name('candidate.hackathons');
-
-        Route::post('/hackathons/{hackathon}/register', [HackathonRegistrationController::class, 'register'])
-    ->name('candidate.hackathons.register');
 
     Route::get('/candidate/hackathons/{hackathon}/exams', [CandidateExamController::class, 'hackathonExams'])
         ->name('candidate.hackathon.exams');
@@ -85,6 +95,18 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/candidate/exams/{exam}/webcam', [CandidateExamController::class, 'webcam'])
         ->name('candidate.exam.webcam');
+
+        Route::get('/admin/tokens', [ExamTokenController::class, 'index'])
+    ->name('admin.tokens.index');
+
+Route::post('/admin/tokens/generate', [ExamTokenController::class, 'generate'])
+    ->name('admin.tokens.generate');
+
+    Route::get('/candidate/exams/{exam}/token', [CandidateExamController::class, 'tokenPage'])
+    ->name('candidate.exam.token');
+
+Route::post('/candidate/exams/{exam}/verify-token', [CandidateExamController::class, 'verifyToken'])
+    ->name('candidate.exam.verifyToken');
 
     Route::get('/candidate/exams/{exam}/start', [CandidateExamController::class, 'start'])
         ->name('candidate.exam.start');
@@ -113,6 +135,24 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/admin/analytics', [ExamController::class, 'analytics'])
+        ->name('admin.analytics');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Registrations
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/admin/registrations', [AdminHackathonRegistrationController::class, 'index'])
+        ->name('admin.registrations.index');
 
     /*
     |--------------------------------------------------------------------------
@@ -165,16 +205,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/admin/analytics', [ExamController::class, 'analytics'])
-    ->name('admin.analytics');
-
     Route::get('/admin/attempts/export', [ExamController::class, 'exportAttempts'])
-    ->name('admin.attempts.export');
-
-    Route::get('/admin/attempts/export', [ExamController::class, 'exportAttempts'])
-    ->name('admin.attempts.export');
-
-
+        ->name('admin.attempts.export');
 
     Route::get('/admin/attempts', [ExamController::class, 'attempts'])
         ->name('admin.attempts');

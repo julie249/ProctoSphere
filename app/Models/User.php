@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Database\Factories\UserFactory;
+use App\Models\ExamToken;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -55,4 +56,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(HackathonRegistration::class);
     }
+
+    public function examTokens()
+{
+    return $this->hasMany(ExamToken::class);
+}
 }
