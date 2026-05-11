@@ -28,6 +28,26 @@ class ExamController extends Controller
         return session('verified_exam_token_' . $examId) === true;
     }
 
+    // Exam Schedule Protection
+    private function checkExamSchedule(Exam $exam)
+    {
+        if (!$exam->exam_start_time || !$exam->exam_end_time) {
+            return null;
+        }
+
+        if (now()->lt($exam->exam_start_time)) {
+            return 'This exam has not started yet. Start time: '
+                . $exam->exam_start_time->format('d M Y, h:i A');
+        }
+
+        if (now()->gt($exam->exam_end_time)) {
+            return 'This exam has expired. End time: '
+                . $exam->exam_end_time->format('d M Y, h:i A');
+        }
+
+        return null;
+    }
+
     public function hackathons()
     {
         $hackathons = Hackathon::latest()->get();
@@ -56,6 +76,13 @@ class ExamController extends Controller
                 ->with('error', 'Please register for this hackathon before entering token.');
         }
 
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
+        }
+
         $alreadyAttempted = ExamAttempt::where('user_id', Auth::id())
             ->where('exam_id', $exam->id)
             ->exists();
@@ -77,6 +104,13 @@ class ExamController extends Controller
         if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Please register for this hackathon before verifying token.');
+        }
+
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
         }
 
         $examToken = ExamToken::where('user_id', Auth::id())
@@ -104,6 +138,13 @@ class ExamController extends Controller
                 ->with('error', 'Please register for this hackathon before starting the exam.');
         }
 
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
+        }
+
         if (!$this->hasVerifiedToken($exam->id)) {
             return redirect()->route('candidate.exam.token', $exam->id)
                 ->with('error', 'Please verify exam token first.');
@@ -128,6 +169,13 @@ class ExamController extends Controller
                 ->with('error', 'Please register for this hackathon before webcam verification.');
         }
 
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
+        }
+
         if (!$this->hasVerifiedToken($exam->id)) {
             return redirect()->route('candidate.exam.token', $exam->id)
                 ->with('error', 'Please verify exam token first.');
@@ -141,6 +189,13 @@ class ExamController extends Controller
         if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Please register for this hackathon before starting the exam.');
+        }
+
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
         }
 
         if (!$this->hasVerifiedToken($exam->id)) {
@@ -167,6 +222,13 @@ class ExamController extends Controller
         if (!$this->isRegisteredForHackathon($exam->hackathon_id)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Please register for this hackathon before submitting the exam.');
+        }
+
+        $scheduleError = $this->checkExamSchedule($exam);
+
+        if ($scheduleError) {
+            return redirect()->route('dashboard')
+                ->with('error', $scheduleError);
         }
 
         if (!$this->hasVerifiedToken($exam->id)) {
@@ -218,7 +280,9 @@ class ExamController extends Controller
             'score' => $finalScore,
             'total_questions' => $questions->count(),
             'violations' => $violations,
-            'status' => $finalScore >= $exam->passing_marks ? 'shortlisted' : 'rejected',
+            'status' => $finalScore >= $exam->passing_marks
+                ? 'shortlisted'
+                : 'rejected',
             'submitted_at' => now(),
         ]);
 
