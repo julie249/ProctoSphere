@@ -24,54 +24,113 @@
     <form method="POST" action="{{ route('admin.exams.store') }}" class="space-y-5">
         @csrf
 
-        <input class="w-full border rounded-lg p-3"
-               type="text"
-               name="title"
-               placeholder="Exam Title"
-               required>
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-2">
+                Exam Title
+            </label>
 
-        <select name="hackathon_id" class="w-full border rounded-lg p-3" required>
-            <option value="">Select Hackathon</option>
-            @foreach($hackathons as $hackathon)
-                <option value="{{ $hackathon->id }}">
-                    {{ $hackathon->title }} ({{ ucfirst($hackathon->level) }})
-                </option>
-            @endforeach
-        </select>
+            <input class="w-full border rounded-lg p-3"
+                   type="text"
+                   name="title"
+                   value="{{ old('title') }}"
+                   placeholder="Exam Title"
+                   required>
+        </div>
 
-        <textarea class="w-full border rounded-lg p-3"
-                  name="description"
-                  placeholder="Description"></textarea>
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-2">
+                Select Hackathon
+            </label>
+
+            <select name="hackathon_id" class="w-full border rounded-lg p-3" required>
+                <option value="">Select Hackathon</option>
+
+                @foreach($hackathons as $hackathon)
+                    <option value="{{ $hackathon->id }}"
+                        {{ old('hackathon_id') == $hackathon->id ? 'selected' : '' }}>
+                        {{ $hackathon->title }} ({{ ucfirst($hackathon->level) }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-2">
+                Description
+            </label>
+
+            <textarea class="w-full border rounded-lg p-3"
+                      name="description"
+                      rows="4"
+                      placeholder="Description">{{ old('description') }}</textarea>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input class="border rounded-lg p-3"
-                   type="number"
-                   name="duration"
-                   placeholder="Duration in minutes"
-                   required>
 
-            <input class="border rounded-lg p-3"
-                   type="number"
-                   name="total_marks"
-                   placeholder="Total Marks"
-                   required>
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Duration
+                </label>
 
-            <input class="border rounded-lg p-3"
-                   type="number"
-                   name="passing_marks"
-                   placeholder="Passing Marks"
-                   required>
+                <input class="w-full border rounded-lg p-3"
+                       type="number"
+                       name="duration"
+                       value="{{ old('duration') }}"
+                       placeholder="Duration in minutes"
+                       required>
+            </div>
 
-            <input class="border rounded-lg p-3"
-                   type="number"
-                   name="negative_marks"
-                   placeholder="Negative Marks">
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Total Marks
+                </label>
 
-            <input class="border rounded-lg p-3"
-                   type="number"
-                   name="max_warnings"
-                   value="3"
-                   placeholder="Max Warnings">
+                <input class="w-full border rounded-lg p-3"
+                       type="number"
+                       name="total_marks"
+                       value="{{ old('total_marks') }}"
+                       placeholder="Total Marks"
+                       required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Passing Marks
+                </label>
+
+                <input class="w-full border rounded-lg p-3"
+                       type="number"
+                       name="passing_marks"
+                       value="{{ old('passing_marks') }}"
+                       placeholder="Passing Marks"
+                       required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Negative Marks
+                </label>
+
+                <input class="w-full border rounded-lg p-3"
+                       type="number"
+                       step="0.01"
+                       name="negative_marks"
+                       value="{{ old('negative_marks', 0) }}"
+                       placeholder="Negative Marks">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Maximum Warnings
+                </label>
+
+                <input class="w-full border rounded-lg p-3"
+                       type="number"
+                       name="max_warnings"
+                       value="{{ old('max_warnings', 3) }}"
+                       placeholder="Max Warnings">
+            </div>
+
         </div>
 
         <div class="border-t pt-6">
@@ -88,7 +147,8 @@
 
                     <input class="w-full border rounded-lg p-3"
                            type="datetime-local"
-                           name="exam_start_time">
+                           name="exam_start_time"
+                           value="{{ old('exam_start_time') }}">
                 </div>
 
                 <div>
@@ -98,15 +158,39 @@
 
                     <input class="w-full border rounded-lg p-3"
                            type="datetime-local"
-                           name="exam_end_time">
+                           name="exam_end_time"
+                           value="{{ old('exam_end_time') }}">
                 </div>
 
             </div>
         </div>
 
-        <button class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
-            Create Exam
-        </button>
+        <div class="flex items-center gap-3">
+            <input type="checkbox"
+                   name="is_active"
+                   value="1"
+                   checked
+                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+
+            <span class="font-semibold text-slate-700">
+                Active Exam
+            </span>
+        </div>
+
+        <div class="flex justify-between items-center pt-4">
+
+            <a href="{{ route('admin.exams.index') }}"
+               class="bg-slate-600 text-white px-6 py-3 rounded-lg hover:bg-slate-700">
+                Back
+            </a>
+
+            <button type="submit"
+                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+                Create Exam
+            </button>
+
+        </div>
+
     </form>
 </div>
 @endsection

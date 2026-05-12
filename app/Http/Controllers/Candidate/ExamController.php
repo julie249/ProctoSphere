@@ -28,7 +28,6 @@ class ExamController extends Controller
         return session('verified_exam_token_' . $examId) === true;
     }
 
-    // Exam Schedule Protection
     private function checkExamSchedule(Exam $exam)
     {
         if (!$exam->exam_start_time || !$exam->exam_end_time) {
@@ -46,6 +45,45 @@ class ExamController extends Controller
         }
 
         return null;
+    }
+
+    private function normalizeCorrectAnswer($question)
+    {
+        $correctAnswer = strtoupper(trim($question->correct_answer));
+
+        if (in_array($correctAnswer, ['A', 'OPTION_A', 'OPTION A', 'OPTION_1', 'OPTION 1', 'OPTION1'])) {
+            return 'A';
+        }
+
+        if (in_array($correctAnswer, ['B', 'OPTION_B', 'OPTION B', 'OPTION_2', 'OPTION 2', 'OPTION2'])) {
+            return 'B';
+        }
+
+        if (in_array($correctAnswer, ['C', 'OPTION_C', 'OPTION C', 'OPTION_3', 'OPTION 3', 'OPTION3'])) {
+            return 'C';
+        }
+
+        if (in_array($correctAnswer, ['D', 'OPTION_D', 'OPTION D', 'OPTION_4', 'OPTION 4', 'OPTION4'])) {
+            return 'D';
+        }
+
+        if (trim($question->correct_answer) === trim($question->option_a)) {
+            return 'A';
+        }
+
+        if (trim($question->correct_answer) === trim($question->option_b)) {
+            return 'B';
+        }
+
+        if (trim($question->correct_answer) === trim($question->option_c)) {
+            return 'C';
+        }
+
+        if (trim($question->correct_answer) === trim($question->option_d)) {
+            return 'D';
+        }
+
+        return $correctAnswer;
     }
 
     public function hackathons()
@@ -250,11 +288,18 @@ class ExamController extends Controller
         $score = 0;
         $correctAnswers = 0;
         $wrongAnswers = 0;
+        $unanswered = 0;
 
         foreach ($questions as $question) {
-            $answer = $request->input('answers.' . $question->id);
+            $answer = strtoupper(trim($request->input('answers.' . $question->id, '')));
+            $correctAnswer = $this->normalizeCorrectAnswer($question);
 
-            if ($answer == $question->correct_answer) {
+            if ($answer === '') {
+                $unanswered++;
+                continue;
+            }
+
+            if ($answer === $correctAnswer) {
                 $score += $question->marks;
                 $correctAnswers++;
             } else {
@@ -268,6 +313,7 @@ class ExamController extends Controller
             ->count();
 
         $penalty = $violations * 1;
+
         $finalScore = $score - $penalty;
 
         if ($finalScore < 0) {
@@ -301,6 +347,7 @@ class ExamController extends Controller
             'questions',
             'correctAnswers',
             'wrongAnswers',
+            'unanswered',
             'violations',
             'finalScore'
         ));
