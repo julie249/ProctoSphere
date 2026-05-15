@@ -187,6 +187,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/hackathons', [HackathonController::class, 'store'])
         ->name('admin.hackathons.store');
 
+    Route::delete('/admin/hackathons/{hackathon}', [HackathonController::class, 'destroy'])
+        ->name('admin.hackathons.destroy');
+
     /*
     |--------------------------------------------------------------------------
     | Admin Attempts, Logs, Leaderboard

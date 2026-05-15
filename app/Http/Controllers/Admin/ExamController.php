@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 use App\Models\User;
 use App\Models\Exam;
+use App\Models\Question;
 use App\Models\ExamAttempt;
+use App\Models\ExamToken;
 use App\Models\Hackathon;
 use App\Models\ProctorLog;
 
@@ -116,17 +120,22 @@ class ExamController extends Controller
 
     public function destroy(Exam $exam)
     {
-        if ($exam->attempts()->count() > 0) {
-            return redirect()
-                ->route('admin.exams.index')
-                ->with('error', 'This exam already has attempts, so it cannot be deleted. You can deactivate it instead.');
-        }
+        DB::transaction(function () use ($exam) {
 
-        $exam->delete();
+            Question::where('exam_id', $exam->id)->delete();
+
+            ExamAttempt::where('exam_id', $exam->id)->delete();
+
+            ExamToken::where('exam_id', $exam->id)->delete();
+
+            ProctorLog::where('exam_id', $exam->id)->delete();
+
+            $exam->delete();
+        });
 
         return redirect()
             ->route('admin.exams.index')
-            ->with('success', 'Exam deleted successfully.');
+            ->with('success', 'Exam and all related data deleted successfully.');
     }
 
     public function attempts()
